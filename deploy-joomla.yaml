@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: joomla
+  labels:
+    app: joomla
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: joomla
+    tier: frontend
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: joomla
+  labels:
+    app: joomla
+spec:
+  selector:
+    matchLabels:
+      app: joomla
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: joomla
+        tier: frontend
+    spec:
+      containers:
+      - image: joomla:3.4.8-apache
+        name: joomla
+        env:
+        - name: JOOMLA_DB_HOST
+          value: joomladb
+        - name: JOOMLA_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mydbsecret
+              key: rootpass
+        ports:
+        - containerPort: 80
+          name: joomla
+        volumeMounts:
+        - name: joomla-persistent-storage
+          mountPath: /var/www/html
+      volumes:
+      - name: joomla-persistent-storage
+        persistentVolumeClaim:
+          claimName: efs-joomla
