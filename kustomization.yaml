@@ -5,8 +5,5 @@ secretGenerator:
   literals:
   - rootpass=ankushroot
 resources:
-  - create-efs-provisioner.yaml
-  - create-rbac.yaml
-  - create-storage.yaml
   - deploy-mysql.yaml
   - deploy-joomla.yaml
